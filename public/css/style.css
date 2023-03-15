@@ -1,0 +1,33 @@
+#users-list {
+    display: flex;
+    list-style: none;
+    padding: 1rem;
+}
+
+#users-list li {
+    background-color: #b8d4ec;
+    color: #424242;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    margin-right: 1rem;
+}
+
+#users-list li:nth-child(even) {
+    background-color: #FFBFA9;
+}
+
+.user-online {
+    margin: 1rem;
+}
+
+.text-online {
+    font-size: 1.5rem;
+    color: #00d100;
+    font-weight: 600;
+}
+
+#myDiagramDiv {
+    border: 2px solid #ddd;
+    width: 100%;
+    height: 500px
+}

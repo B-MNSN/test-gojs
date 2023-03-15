@@ -6,12 +6,44 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TEST GOJS</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+</link>
+
 </head>
 
 <body>
-    <div id="myDiagramDiv" style="border: solid 1px blue; width:400px; height:150px"></div>
+    <div class="container">
+        <div id="box-input-username">
+            <form id="user-form" class="d-flex justify-content-center flex-column">
+                <label for="input-username" class="form-label text-center fw-bold text-uppercase mt-5 mb-2">Enter Username</label>
+                <input type="text" id="input-username" class="form-control mb-3">
+                <button type="submit" class="btn btn-warning ">Join</button>
 
+            </form>
+        </div>
+    </div>
+
+
+    <div id="room" class="d-none">
+        <div class="user-online">
+            <span class="text-online">ONLINE</span>
+            <ul id="users-list"></ul>
+
+        </div>
+        <div id="myDiagramDiv"></div>
+
+    </div>
+
+
+    <!-- socket.io -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <!-- gojs -->
     <script src="https://unpkg.com/gojs/release/go-debug.js"></script>
+
     <script src="/js/myDiagram.js"></script>
 </body>
 
