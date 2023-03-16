@@ -7,6 +7,7 @@ const myDiagram = new go.Diagram(
     { "undoManager.isEnabled": true }
 ); // enable undo & redo
 
+//crate background
 myDiagram.grid = $(
     go.Panel,
     "Grid", {
@@ -38,9 +39,7 @@ myDiagram.nodeTemplate = new go.Node("Auto") // the Shape will automatically sur
         .bind("text", "key")
     ); // TextBlock.text is bound to Node.data.key
 
-// but use the default Link template, by not setting Diagram.linkTemplate
 
-// create the model data that will be represented by Nodes and Links
 myDiagram.model = new go.GraphLinksModel(
     [
         { key: "Alpha", color: "lightblue" },
@@ -73,34 +72,50 @@ let userForm = document.getElementById('user-form');
 let usernameInput = document.getElementById('input-username');
 let room = document.getElementById('room');
 let usersList = document.getElementById('users-list');
-
+let userId = Date.now();
 
 userForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const username = usernameInput.value;
-    socket.emit('new user join', username);
+    socket.emit('new user join', {
+        socketId: socket.id,
+        userId: userId,
+        username: username,
+    });
     usernameInput.value = '';
     boxInputUsername.classList.add('d-none');
     room.classList.remove('d-none')
     room.classList.add('d-block')
 })
 
-socket.on('new user join', (username, connectedUsers) => {
-    console.log(`${username} joined the chat`);
-    renderUsers(connectedUsers);
+
+socket.on('new user join', (users) => {
+    console.log(`${users.username} joined the room`);
+    const listItem = document.createElement('li');
+    listItem.id = `user-${users.userId}`;
+    listItem.textContent = users.username;
+    usersList.appendChild(listItem);
 })
 
-socket.on('user disconnected', (disconnectedUser, connectedUsers) => {
-    console.log(`${disconnectedUser} left the chat`);
-    renderUsers(connectedUsers);
-});
-
-function renderUsers(users) {
+socket.on('user list update', (list) => {
+    // Update user list with latest list of users
+    listUser = list;
+    // Clear current user list
     usersList.innerHTML = '';
-    for (const user of users) {
+    // Add updated user list
+    listUser.forEach(user => {
         const listItem = document.createElement('li');
-        listItem.textContent = user;
+        listItem.id = `user-${user.userId}`;
+        listItem.textContent = user.username;
         usersList.appendChild(listItem);
+    });
+})
+
+socket.on('user disconnected', (user) => {
+    console.log(`${user.username} left the room`);
+    const listItem = document.getElementById(`user-${user.userId}`);
+    if (listItem) {
+        listItem.remove();
     }
-}
+})
