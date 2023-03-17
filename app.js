@@ -43,6 +43,16 @@ io.on('connection', (socket) => {
         }
     })
 
+    socket.on('node clicked', function(data) {
+        console.log(data);
+        io.emit('node clicked', data);
+    });
+
+    socket.on("nodeMoved", (data) => {
+        console.log(`Node ${data.key} moved to (${data.x}, ${data.y})`);
+        socket.broadcast.emit("nodeMoved", data);
+    });
+
 });
 
 server.listen(PORT, () => {

@@ -27,46 +27,56 @@ myDiagram.grid = $(
 myDiagram.grid.visible = true; // so that this example shows the standard grid
 myDiagram.div.style.background = "white";
 
-// define a simple Node template
-myDiagram.nodeTemplate = new go.Node("Auto") // the Shape will automatically surround the TextBlock
-    // add a Shape and a TextBlock to this "Auto" Panel
-    .add(
-        new go.Shape("RoundedRectangle", { strokeWidth: 0, fill: "white" }) // no border; default fill is white
-        .bind("fill", "color")
-    ) // Shape.fill is bound to Node.data.color
-    .add(
-        new go.TextBlock({ margin: 8, stroke: "#333" }) // some room around the text
-        .bind("text", "key")
-    ); // TextBlock.text is bound to Node.data.key
 
+myDiagram.nodeTemplate =
+    $(go.Node, "Auto",
+        $(go.Shape, "Rectangle", { strokeWidth: 0, fill: "white" }, new go.Binding("fill", "color")),
+        $(go.TextBlock, { margin: 8, stroke: "#333" }, new go.Binding("text"))
+    )
 
 myDiagram.model = new go.GraphLinksModel(
     [
-        { key: "Alpha", color: "lightblue" },
-        { key: "Beta", color: "orange" },
-        { key: "Gamma", color: "lightgreen" },
-        { key: "Delta", color: "pink" },
-    ], [
-        { from: "Alpha", to: "Beta" },
-        { from: "Alpha", to: "Gamma" },
-        { from: "Beta", to: "Beta" },
-        { from: "Gamma", to: "Delta" },
-        { from: "Delta", to: "Alpha" },
-    ]
-);
+        { key: 1, text: "Alpha", color: "lightblue" },
+        { key: 2, text: "Beta", color: "orange" },
+        { key: 3, text: "Gamma", color: "lightgreen" },
+        { key: 4, text: "Delta", color: "pink" }
+    ]);;
 
 
-// update the diagram whenever new data is received from the server
-socket.on('updateDiagram', function(data) {
-    myDiagram.model = go.Model.fromJson(data);
+socket.on("nodeMoved", (data) => {
+    const node = myDiagram.findNodeForKey(data.key);
+    if (node) {
+        node.position = new go.Point(data.x, data.y);
+    }
 });
 
-// send the current diagram data to the server whenever it changes
-myDiagram.addDiagramListener("ObjectDoubleClicked", function(e) {
-    var currentDiagramData = myDiagram.model.toJson();
-    socket.emit('updateDiagram', currentDiagramData);
+myDiagram.addDiagramListener("ObjectSingleClicked", (e) => {
+    const node = e.subject.part;
+    if (node instanceof go.Node) {
+
+        socket.emit("nodeMoved", { key: node.key, x: node.position.x, y: node.position.y });
+    }
 });
 
+myDiagram.addDiagramListener("SelectionMoved", (e) => {
+    const sel = e.diagram.selection;
+    if (sel.count === 1) {
+        const node = sel.first();
+        socket.emit("nodeMoved", { key: node.key, x: node.position.x, y: node.position.y });
+    }
+});
+
+socket.on('node clicked', (data) => {
+    // console.log(data);
+    let node = myDiagram.findNodeForKey(data.nodeKey);
+
+    if (node !== null) {
+        // node.data.color = "red";
+        myDiagram.select(node);
+    }
+})
+
+//user
 let boxInputUsername = document.getElementById('box-input-username')
 let userForm = document.getElementById('user-form');
 let usernameInput = document.getElementById('input-username');
